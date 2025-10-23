@@ -1,0 +1,131 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model for authentication and profile
+model User {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  password  String
+  firstName String
+  lastName  String
+  phone     String
+  address   String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  // Relations
+  listings  Listing[]  @relation("UserListings")
+  purchases Sale[]     @relation("UserPurchases")
+  sales     Sale[]     @relation("UserSales")
+  products  Product[]  @relation("UserProducts")
+
+  @@map("users")
+}
+
+// Category model for product categories
+model Category {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  createdAt DateTime   @default(now())
+
+  // Relations
+  products  Product[]
+
+  @@map("categories")
+}
+
+// Product model for user products
+model Product {
+  id            String     @id @default(cuid())
+  title         String?
+  description   String?
+  purchasePrice Float?
+  rentalPrice   Float?
+  rentUnit      String?    // HOURLY, DAILY, WEEKLY, MONTHLY
+  status        String     @default("DRAFT")  // DRAFT, PUBLISHED
+  userId        String
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  // Relations
+  user          User       @relation("UserProducts", fields: [userId], references: [id], onDelete: Cascade)
+  categories    Category[]
+
+  @@index([userId])
+  @@index([status])
+  @@map("products")
+}
+
+// Listing model for products available for rent/sale
+model Listing {
+  id          String     @id @default(cuid())
+  title       String
+  description String
+  category    String
+  condition   String     // new, like-new, good, fair
+  price       Float
+  rentalPrice Float?     // For rental
+  image       String?    // Image URL
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  userId      String
+
+  // Relations
+  user        User       @relation("UserListings", fields: [userId], references: [id], onDelete: Cascade)
+  sales       Sale[]
+  rentals     Rental[]
+
+  @@index([userId])
+  @@map("listings")
+}
+
+// Sale model for product purchases
+model Sale {
+  id          String     @id @default(cuid())
+  listingId   String
+  buyerId     String
+  sellerId    String
+  price       Float
+  status      String     @default("completed") // pending, completed, cancelled
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  // Relations
+  listing     Listing    @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  buyer       User       @relation("UserPurchases", fields: [buyerId], references: [id], onDelete: Cascade)
+  seller      User       @relation("UserSales", fields: [sellerId], references: [id], onDelete: Cascade)
+
+  @@index([listingId])
+  @@index([buyerId])
+  @@index([sellerId])
+  @@map("sales")
+}
+
+// Rental model for product rentals
+model Rental {
+  id          String     @id @default(cuid())
+  listingId   String
+  renterUserId String
+  ownerUserId String
+  startDate   DateTime
+  endDate     DateTime
+  rentalPrice Float
+  status      String     @default("active") // active, completed, cancelled
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  // Relations
+  listing     Listing    @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId])
+  @@map("rentals")
+}

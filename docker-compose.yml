@@ -1,0 +1,56 @@
+version: "3.9"
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: teebay-postgres
+    environment:
+      POSTGRES_USER: ${DB_USER:-teebay_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-teebay_password}
+      POSTGRES_DB: ${DB_NAME:-teebay_db}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-teebay_user}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - teebay-network
+    restart: unless-stopped
+
+  # Node.js Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: teebay-app
+    environment:
+      DATABASE_URL: postgresql://${DB_USER:-teebay_user}:${DB_PASSWORD:-teebay_password}@postgres:5432/${DB_NAME:-teebay_db}
+      JWT_SECRET: ${JWT_SECRET:-your-secret-key-change-in-production}
+      JWT_EXPIRY: ${JWT_EXPIRY:-7d}
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: ${PORT:-4000}
+    ports:
+      - "${PORT:-4000}:4000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run dev
+    networks:
+      - teebay-network
+    restart: unless-stopped
+
+networks:
+  teebay-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
