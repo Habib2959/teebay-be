@@ -31,6 +31,7 @@ interface ProductArgs {
 interface AllProductsArgs {
   limit?: number;
   offset?: number;
+  status?: string;
 }
 
 interface CreateProductArgs {
@@ -70,12 +71,13 @@ export const productResolvers = {
 
     /**
      * Get all products with pagination
+     * Default status is PUBLISHED if not specified
      */
     allProducts: async (
       _parent: unknown,
-      { limit, offset }: AllProductsArgs
+      { limit, offset, status }: AllProductsArgs
     ) => {
-      return getAllProducts(limit || 10, offset || 0);
+      return getAllProducts(limit || 10, offset || 0, status || 'PUBLISHED');
     },
 
     /**
