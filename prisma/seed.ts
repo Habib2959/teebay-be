@@ -233,6 +233,68 @@ async function main() {
 
     console.log('✅ Created sample rentals');
 
+    // Create sample buys
+    const buy1 = await prisma.buy.create({
+      data: {
+        productId: product1.id,
+        buyerId: user2.id,
+        sellerId: user1.id,
+        price: product1.purchasePrice || 1800.0,
+        status: 'COMPLETED',
+      },
+    });
+
+    const buy2 = await prisma.buy.create({
+      data: {
+        productId: product3.id,
+        buyerId: user3.id,
+        sellerId: user1.id,
+        price: product3.purchasePrice || 150.0,
+        status: 'COMPLETED',
+      },
+    });
+
+    console.log('✅ Created sample buys');
+
+    // Create sample rents
+    const rent1 = await prisma.rent.create({
+      data: {
+        productId: product2.id,
+        renterUserId: user1.id,
+        ownerUserId: user2.id,
+        startDate: new Date('2024-11-01'),
+        endDate: new Date('2024-11-05'),
+        rentalPrice: product2.rentalPrice || 35.0,
+        status: 'ACTIVE',
+      },
+    });
+
+    const rent2 = await prisma.rent.create({
+      data: {
+        productId: product4.id,
+        renterUserId: user1.id,
+        ownerUserId: user3.id,
+        startDate: new Date('2024-11-10'),
+        endDate: new Date('2024-11-12'),
+        rentalPrice: product4.rentalPrice || 20.0,
+        status: 'ACTIVE',
+      },
+    });
+
+    const rent3 = await prisma.rent.create({
+      data: {
+        productId: product6.id,
+        renterUserId: user2.id,
+        ownerUserId: user1.id,
+        startDate: new Date('2024-11-20'),
+        endDate: new Date('2024-11-22'),
+        rentalPrice: product6.rentalPrice || 25.0,
+        status: 'COMPLETED',
+      },
+    });
+
+    console.log('✅ Created sample rents');
+
     console.log('🎉 Database seeded successfully!');
   } catch (error) {
     console.error('❌ Seeding failed:', error);

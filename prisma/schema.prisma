@@ -23,10 +23,14 @@ model User {
   updatedAt DateTime   @updatedAt
 
   // Relations
-  listings  Listing[]  @relation("UserListings")
-  purchases Sale[]     @relation("UserPurchases")
-  sales     Sale[]     @relation("UserSales")
-  products  Product[]  @relation("UserProducts")
+  listings      Listing[]  @relation("UserListings")
+  purchases     Sale[]     @relation("UserPurchases")
+  sales         Sale[]     @relation("UserSales")
+  products      Product[]  @relation("UserProducts")
+  buys          Buy[]      @relation("UserBuys")
+  sells         Buy[]      @relation("UserSells")
+  rentals       Rent[]     @relation("UserRentals")
+  lendings      Rent[]     @relation("UserLendings")
 
   @@map("users")
 }
@@ -59,6 +63,8 @@ model Product {
   // Relations
   user          User       @relation("UserProducts", fields: [userId], references: [id], onDelete: Cascade)
   categories    Category[]
+  buys          Buy[]
+  rents         Rent[]
 
   @@index([userId])
   @@index([status])
@@ -128,4 +134,52 @@ model Rental {
 
   @@index([listingId])
   @@map("rentals")
+}
+
+// Buy model for product purchases
+model Buy {
+  id        String     @id @default(cuid())
+  productId String
+  buyerId   String
+  sellerId  String
+  price     Float
+  status    String     @default("COMPLETED") // PENDING, COMPLETED, CANCELLED
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  // Relations
+  product   Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  buyer     User       @relation("UserBuys", fields: [buyerId], references: [id], onDelete: Cascade)
+  seller    User       @relation("UserSells", fields: [sellerId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@index([buyerId])
+  @@index([sellerId])
+  @@map("buys")
+}
+
+// Rent model for product rentals (new design)
+model Rent {
+  id           String     @id @default(cuid())
+  productId    String
+  renterUserId String
+  ownerUserId  String
+  startDate    DateTime
+  endDate      DateTime
+  rentalPrice  Float
+  status       String     @default("ACTIVE") // PENDING, ACTIVE, COMPLETED, CANCELLED
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  // Relations
+  product      Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  renter       User       @relation("UserRentals", fields: [renterUserId], references: [id], onDelete: Cascade)
+  owner        User       @relation("UserLendings", fields: [ownerUserId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@index([renterUserId])
+  @@index([ownerUserId])
+  @@index([startDate])
+  @@index([endDate])
+  @@map("rents")
 }

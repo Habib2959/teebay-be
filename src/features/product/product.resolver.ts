@@ -16,7 +16,12 @@ import {
 import { ProductInput, UpdateProductInput } from './product.types.js';
 
 interface ResolverContext {
-  userId?: string;
+  user?: {
+    userId: string;
+    email: string;
+  };
+  req: any;
+  res: any;
 }
 
 interface ProductArgs {
@@ -55,12 +60,12 @@ export const productResolvers = {
     myProducts: async (
       _parent: unknown,
       _args: unknown,
-      { userId }: ResolverContext
+      context: ResolverContext
     ) => {
-      if (!userId) {
+      if (!context.user?.userId) {
         throw new Error('Authentication required');
       }
-      return getUserProducts(userId);
+      return getUserProducts(context.user.userId);
     },
 
     /**
@@ -97,12 +102,12 @@ export const productResolvers = {
     createProduct: async (
       _parent: unknown,
       { input }: CreateProductArgs,
-      { userId }: ResolverContext
+      context: ResolverContext
     ) => {
-      if (!userId) {
+      if (!context.user?.userId) {
         throw new Error('Authentication required');
       }
-      return createProduct(userId, input);
+      return createProduct(context.user.userId, input);
     },
 
     /**
@@ -111,12 +116,12 @@ export const productResolvers = {
     updateProduct: async (
       _parent: unknown,
       { input }: UpdateProductArgs,
-      { userId }: ResolverContext
+      context: ResolverContext
     ) => {
-      if (!userId) {
+      if (!context.user?.userId) {
         throw new Error('Authentication required');
       }
-      return updateProduct(userId, input);
+      return updateProduct(context.user.userId, input);
     },
 
     /**
@@ -125,12 +130,12 @@ export const productResolvers = {
     deleteProduct: async (
       _parent: unknown,
       { id }: DeleteProductArgs,
-      { userId }: ResolverContext
+      context: ResolverContext
     ) => {
-      if (!userId) {
+      if (!context.user?.userId) {
         throw new Error('Authentication required');
       }
-      return deleteProduct(userId, id);
+      return deleteProduct(context.user.userId, id);
     },
   },
 };

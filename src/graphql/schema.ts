@@ -1,6 +1,7 @@
 import { authTypeDefs } from '../features/auth/auth.types.js';
 import { userTypeDefs } from '../features/user/user.types.js';
 import { productTypeDefs } from '../features/product/product.types.js';
+import { transactionTypeDefs } from '../features/transaction/transaction.types.js';
 import { commonTypeDefs } from './common.types.js';
 
 /**
@@ -27,4 +28,5 @@ export const typeDefs = `
   ${authTypeDefs}
   ${userTypeDefs}
   ${productTypeDefs}
+  ${transactionTypeDefs}
 `;

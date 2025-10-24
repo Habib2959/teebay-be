@@ -1,6 +1,7 @@
 import { authResolvers } from '../../features/auth/auth.resolver.js';
 import { userResolvers } from '../../features/user/user.resolver.js';
 import { productResolvers } from '../../features/product/product.resolver.js';
+import { transactionResolvers } from '../../features/transaction/transaction.resolver.js';
 import { GraphQLScalarType } from 'graphql';
 
 /**
@@ -29,11 +30,13 @@ export function createResolvers() {
     Query: {
       ...userResolvers.Query,
       ...productResolvers.Query,
+      ...transactionResolvers.Query,
     },
     Mutation: {
       ...authResolvers.Mutation,
       ...userResolvers.Mutation,
       ...productResolvers.Mutation,
+      ...transactionResolvers.Mutation,
     },
   };
 }
