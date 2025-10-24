@@ -24,7 +24,8 @@ const dateTimeScalar = new GraphQLScalarType({
 /**
  * Combine all feature resolvers
  */
-export function createResolvers() {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function createResolvers(): any {
   return {
     DateTime: dateTimeScalar,
     Query: {

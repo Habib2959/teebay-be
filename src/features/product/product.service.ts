@@ -95,6 +95,7 @@ export async function updateProduct(userId: string, input: UpdateProductInput) {
 
 /**
  * Delete a product
+ * Cannot delete if product has been bought or rented
  */
 export async function deleteProduct(userId: string, productId: string) {
   try {
@@ -109,6 +110,34 @@ export async function deleteProduct(userId: string, productId: string) {
 
     if (product.userId !== userId) {
       throw new Error('You do not have permission to delete this product');
+    }
+
+    // Check if product has any completed/active buy transactions
+    const existingBuy = await prisma.buy.findFirst({
+      where: {
+        productId,
+        status: { in: ['COMPLETED', 'PENDING'] },
+      },
+    });
+
+    if (existingBuy) {
+      throw new Error(
+        'Cannot delete product: Product has been bought or has a pending buy transaction'
+      );
+    }
+
+    // Check if product has any active/pending rent transactions
+    const existingRent = await prisma.rent.findFirst({
+      where: {
+        productId,
+        status: { in: ['ACTIVE', 'PENDING'] },
+      },
+    });
+
+    if (existingRent) {
+      throw new Error(
+        'Cannot delete product: Product is currently rented or has a pending rent transaction'
+      );
     }
 
     await prisma.product.delete({
