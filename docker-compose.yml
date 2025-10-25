@@ -49,6 +49,7 @@ services:
 
 networks:
   teebay-network:
+    name: teebay-shared-network
     driver: bridge
 
 volumes:
