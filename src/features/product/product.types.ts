@@ -34,6 +34,8 @@ export const productTypeDefs = `
     userId: String!
     createdAt: DateTime!
     updatedAt: DateTime!
+    isBought: Boolean!
+    isCurrentlyRented: Boolean!
   }
 
   type ProductStep {

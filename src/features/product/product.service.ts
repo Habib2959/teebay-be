@@ -170,6 +170,12 @@ export async function getProductById(productId: string) {
             email: true,
           },
         },
+        buys: {
+          where: { status: 'COMPLETED' },
+        },
+        rents: {
+          where: { status: 'ACTIVE' },
+        },
       },
     });
 
@@ -177,7 +183,15 @@ export async function getProductById(productId: string) {
       throw new Error('Product not found');
     }
 
-    return product;
+    // Calculate if product is bought and currently rented
+    const isBought = product.buys.length > 0;
+    const isCurrentlyRented = product.rents.length > 0;
+
+    return {
+      ...product,
+      isBought,
+      isCurrentlyRented,
+    };
   } catch (error) {
     throw new Error(`Failed to fetch product: ${(error as Error).message}`);
   }
@@ -195,13 +209,26 @@ export async function getUserProducts(userId: string, status?: string) {
       },
       include: {
         categories: true,
+        buys: {
+          where: { status: 'COMPLETED' },
+        },
+        rents: {
+          where: { status: 'ACTIVE' },
+        },
       },
       orderBy: {
         createdAt: 'desc',
       },
     });
 
-    return products;
+    // Add computed fields for isBought and isCurrentlyRented
+    const productsWithStatus = products.map((product) => ({
+      ...product,
+      isBought: product.buys.length > 0,
+      isCurrentlyRented: product.rents.length > 0,
+    }));
+
+    return productsWithStatus;
   } catch (error) {
     throw new Error(
       `Failed to fetch user products: ${(error as Error).message}`
@@ -228,6 +255,12 @@ export async function getAllProducts(limit = 10, offset = 0, status?: string) {
               lastName: true,
             },
           },
+          buys: {
+            where: { status: 'COMPLETED' },
+          },
+          rents: {
+            where: { status: 'ACTIVE' },
+          },
         },
         orderBy: {
           createdAt: 'desc',
@@ -236,9 +269,16 @@ export async function getAllProducts(limit = 10, offset = 0, status?: string) {
       prisma.product.count(status ? { where: { status } } : undefined),
     ]);
 
+    // Add computed fields for isBought and isCurrentlyRented
+    const productsWithStatus = products.map((product) => ({
+      ...product,
+      isBought: product.buys.length > 0,
+      isCurrentlyRented: product.rents.length > 0,
+    }));
+
     return {
       success: true,
-      products,
+      products: productsWithStatus,
       total,
     };
   } catch (error) {
