@@ -2,20 +2,154 @@
 
 A full-stack product renting and buying/selling application backend built with Node.js, Express, GraphQL, Prisma ORM, and PostgreSQL.
 
-## Features
+## 📋 Project Description
 
-- **User Authentication**: Registration and login with email/password
-- **User Profiles**: Store email, phone, firstname, lastname, and address
+Teebay is a platform where users can:
+
+- **Buy/Sell Products**: List products for sale or purchase from other users
+- **Rent Products**: Rent items from other users for a specified duration
+- **Manage Transactions**: Track buying, selling, and rental transactions
+- **Manage User Profiles**: Update personal information and manage account settings
+
+## ✨ Features
+
 - **GraphQL API**: Modern API using Apollo Server and Express
+- **User Authentication**: Secure registration and login with JWT tokens
+- **User Profiles**: Store email, phone, firstname, lastname, and address
+- **Product Management**: Create, update, delete, and browse products
+- **Transaction Tracking**: Track all buying, selling, and rental activities
 - **Database**: PostgreSQL with Prisma ORM for type-safe database access
 - **Type Safety**: Full TypeScript support
 - **Database Migrations**: Automatic migration management with Prisma
+- **CORS Enabled**: Supports cross-origin requests from frontend
 
-## Prerequisites
+## 🛠️ Prerequisites
 
-- Node.js (v18 or higher)
-- npm or yarn
-- PostgreSQL (v12 or higher)
+- **Node.js**: v20 or higher
+- **npm** or **yarn**
+- **PostgreSQL**: v15 or higher (for local development)
+- **Docker & Docker Compose**: For containerized development
+
+## 📁 Project Structure
+
+```
+teebay-be/
+├── src/
+│   ├── index.ts                    # Main application entry point
+│   ├── config/
+│   │   ├── database.ts            # Database connection configuration
+│   │   └── env.ts                 # Environment variables
+│   ├── features/
+│   │   ├── auth/
+│   │   │   ├── auth.resolver.ts  # Auth GraphQL resolvers
+│   │   │   ├── auth.service.ts   # Auth business logic
+│   │   │   └── auth.types.ts     # Auth TypeScript types
+│   │   ├── user/
+│   │   │   ├── user.resolver.ts  # User GraphQL resolvers
+│   │   │   ├── user.service.ts   # User business logic
+│   │   │   └── user.types.ts     # User TypeScript types
+│   │   ├── product/
+│   │   │   ├── product.resolver.ts  # Product GraphQL resolvers
+│   │   │   ├── product.service.ts   # Product business logic
+│   │   │   └── product.types.ts     # Product TypeScript types
+│   │   └── transaction/
+│   │       ├── transaction.resolver.ts  # Transaction GraphQL resolvers
+│   │       ├── transaction.service.ts   # Transaction business logic
+│   │       └── transaction.types.ts     # Transaction TypeScript types
+│   ├── graphql/
+│   │   ├── schema.ts              # GraphQL schema generator
+│   │   ├── typeDefs.ts            # GraphQL type definitions
+│   │   ├── resolvers.ts           # Main resolver registry
+│   │   ├── common.types.ts        # Common GraphQL types
+│   │   └── resolvers/
+│   │       └── index.ts           # Resolver exports
+│   ├── middleware/
+│   │   └── auth.ts                # JWT authentication middleware
+│   ├── services/
+│   │   ├── auth.service.ts        # Shared auth services
+│   │   └── user.service.ts        # Shared user services
+│   ├── types/
+│   │   └── context.ts             # GraphQL context type definition
+│   └── utils/
+│       ├── errors.ts              # Error handling utilities
+│       ├── jwt.ts                 # JWT token utilities
+│       └── password.ts            # Password hashing utilities
+├── prisma/
+│   ├── schema.prisma              # Database schema
+│   ├── seed.ts                    # Database seed script
+│   └── migrations/                # Database migration files
+├── Dockerfile                     # Production Docker image
+├── Dockerfile.dev                 # Development Docker image
+├── docker-compose.yml             # Docker composition for services
+├── package.json                   # Project dependencies
+├── tsconfig.json                  # TypeScript configuration
+└── README.md                      # This file
+```
+
+## 🚀 Quick Start
+
+### Local Development (Without Docker)
+
+1. **Install dependencies**
+
+   ```bash
+   npm install
+   ```
+
+2. **Setup Environment Variables**
+   Create a `.env` file in the root directory:
+
+   ```env
+   DATABASE_URL="postgresql://teebay_user:teebay_password@localhost:5432/teebay_db"
+   JWT_SECRET="your-secret-key-change-in-production"
+   JWT_EXPIRY="7d"
+   NODE_ENV="development"
+   PORT=4000
+   ```
+
+3. **Setup Database**
+
+   ```bash
+   npm run prisma:migrate
+   npm run prisma:seed
+   ```
+
+4. **Start Development Server**
+   ```bash
+   npm run dev
+   ```
+   Server will be available at `http://localhost:4000/graphql`
+
+### Docker Development
+
+1. **Start all services**
+
+   ```bash
+   docker-compose up -d
+   ```
+
+   This will start:
+   - PostgreSQL database on port 5432
+   - Node.js backend on port 4000
+
+2. **View logs**
+
+   ```bash
+   docker-compose logs -f app
+   ```
+
+3. **Stop services**
+
+   ```bash
+   docker-compose down
+   ```
+
+4. **Rebuild containers**
+   ```bash
+   docker-compose down
+   docker-compose build --no-cache
+   docker-compose up -d
+   ```
 
 ## Installation
 
@@ -67,111 +201,6 @@ npm run dev
 npm run build
 npm run start
 ```
-
-## Project Structure
-
-The project uses a **feature-based architecture** where each feature (auth, user, products, etc.) is self-contained.
-
-```
-teebay-be/
-├── src/
-│   ├── index.ts                 # Application entry point
-│   ├── config/
-│   │   ├── database.ts          # Database configuration
-│   │   └── env.ts               # Environment variables
-│   ├── features/                # Feature modules (auth, user, products, etc.)
-│   │   ├── auth/
-│   │   │   ├── auth.service.ts      # Authentication business logic
-│   │   │   ├── auth.resolver.ts     # GraphQL resolvers
-│   │   │   └── auth.types.ts        # GraphQL type definitions
-│   │   ├── user/
-│   │   │   ├── user.service.ts      # User operations
-│   │   │   ├── user.resolver.ts     # GraphQL resolvers
-│   │   │   └── user.types.ts        # GraphQL type definitions
-│   │   └── index.ts                 # Feature exports
-│   ├── graphql/
-│   │   ├── schema.ts                # Combined GraphQL schema
-│   │   └── resolvers/
-│   │       └── index.ts             # Combined resolvers
-│   ├── middleware/
-│   │   └── auth.ts              # JWT authentication middleware
-│   ├── utils/
-│   │   ├── jwt.ts               # JWT utilities
-│   │   ├── password.ts          # Password hashing utilities
-│   │   └── errors.ts            # Error handling
-│   └── types/
-│       └── context.ts           # GraphQL context type
-├── prisma/
-│   ├── schema.prisma            # Prisma data model
-│   ├── migrations/              # Database migrations
-│   └── seed.ts                  # Database seeding script
-├── docs/
-│   ├── API.md                   # API documentation
-│   ├── DATABASE.md              # Database schema documentation
-│   ├── SETUP.md                 # Setup guide
-│   └── FEATURE_STRUCTURE.md     # Feature architecture guide
-├── .env.example                 # Example environment variables
-├── .gitignore
-├── package.json
-├── tsconfig.json
-└── README.md
-```
-
-## API Documentation
-
-### Authentication Endpoints
-
-#### Register User
-
-```graphql
-mutation RegisterUser(
-  $email: String!
-  $password: String!
-  $firstName: String!
-  $lastName: String!
-  $phone: String!
-  $address: String!
-) {
-  register(
-    data: {
-      email: $email
-      password: $password
-      firstName: $firstName
-      lastName: $lastName
-      phone: $phone
-      address: $address
-    }
-  ) {
-    user {
-      id
-      email
-      firstName
-      lastName
-    }
-    token
-  }
-}
-```
-
-#### Login User
-
-```graphql
-mutation LoginUser($email: String!, $password: String!) {
-  login(email: $email, password: $password) {
-    user {
-      id
-      email
-      firstName
-      lastName
-    }
-    token
-  }
-}
-```
-
-## Database Schema
-
-See [DATABASE.md](./docs/DATABASE.md) for detailed database schema documentation.
 
 ## Environment Variables
 
